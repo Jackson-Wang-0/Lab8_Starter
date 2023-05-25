@@ -72,7 +72,7 @@ describe('Basic user flow for Website', () => {
     const productItem = await page.$('product-item');
 
     // Access the shadow root of the <product-item> element
-    const shadowRoot = await productItem.shadowRoot;
+    const shadowRoot = await productItem.getProperty('shadowRoot');
 
     // Query the button within the shadow root
     const button = await shadowRoot.$('button');
@@ -101,10 +101,16 @@ describe('Basic user flow for Website', () => {
 
     // Iterate over each product item and click the "Add to Cart" button
     for (const productItem of productItems) {
-      const shadowRoot = await productItem.shadowRoot;
+      const shadowRoot = await productItem.getProperty('shadowRoot');
       const button = await shadowRoot.$('button');
-      await button.click();
-      await page.waitForTimeout(500);
+      // Get the innerText property of the button
+      const innerText = await page.evaluate((button) => button.innerText, button);
+
+      // Check if the button text is "Add to Cart"
+      if (innerText === 'Add to Cart') {
+        // Click the button
+        await button.click();
+      }
     }
 
     // Wait for the cart count to update after adding items
@@ -141,7 +147,7 @@ describe('Basic user flow for Website', () => {
 
     // Iterate over each product item and check if the button text is "Remove from Cart"
     for (const productItemAfterReload of productItemsAfterReload) {
-      const shadowRootAfterReload = await productItemAfterReload.shadowRoot;
+      const shadowRootAfterReload = await productItemAfterReload.getProperty('shadowRoot');
       const buttonAfterReload = await shadowRootAfterReload.$('button');
       const buttonTextAfterReload = await buttonAfterReload.evaluate((el) => el.innerText);
       expect(buttonTextAfterReload).toBe('Remove from Cart');
@@ -175,10 +181,9 @@ describe('Basic user flow for Website', () => {
 
     // Iterate over each product item and click the "Remove from Cart" button
     for (const productItem of productItems) {
-      const shadowRoot = await productItem.shadowRoot;
+      const shadowRoot = await productItem.getProperty('shadowRoot');
       const button = await shadowRoot.$('button');
       await button.click();
-      await page.waitForTimeout(500); // Adjust the timeout value as needed
     }
 
     // Wait for the cart count to update after removing items
@@ -216,7 +221,7 @@ describe('Basic user flow for Website', () => {
 
     // Iterate over each product item and check if the button text is "Add to Cart"
     for (const productItemAfterReload of productItemsAfterReload) {
-      const shadowRootAfterReload = await productItemAfterReload.shadowRoot;
+      const shadowRootAfterReload = await productItemAfterReload.getProperty('shadowRoot');
       const buttonAfterReload = await shadowRootAfterReload.$('button');
       const buttonTextAfterReload = await buttonAfterReload.evaluate((el) => el.innerText);
       expect(buttonTextAfterReload).toBe('Add to Cart');
